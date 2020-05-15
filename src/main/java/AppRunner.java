@@ -1,3 +1,4 @@
+import cli.Terminal;
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.Watcher;
 
@@ -8,8 +9,7 @@ public class AppRunner {
 
 
         if (args.length < 2) {
-            System.err
-                    .println("Specify connectionString and application to be executed, eg. 127.0.0.1:2171 mspaint");
+            logger.error("Expected arguments: 127.0.0.1:2181 ./script.sh [params]");
             return;
         }
         logger.info("Application running..");
@@ -19,10 +19,10 @@ public class AppRunner {
         String[] applicationParams = new String[args.length - 1];
         System.arraycopy(args, 1, applicationParams, 0, applicationParams.length);
         try {
-            NodeWatcher watcher = new NodeWatcher(connectionString, "/z", applicationParams);
+            String znode = "/z";
+            NodeWatcher watcher = new NodeWatcher(connectionString, znode, applicationParams);
             new Thread(watcher).start();
-            logger.info("Main thread started");
-//            handleInput();
+            new Terminal(watcher.getZk(), znode).run();
         } catch (Exception e) {
             e.printStackTrace();
         }

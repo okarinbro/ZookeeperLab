@@ -130,4 +130,8 @@ public class NodeWatcher implements Watcher, Runnable, AutoCloseable {
             notifyAll();
         }
     }
+
+    public synchronized ZooKeeper getZk() {
+        return zk;
+    }
 }
