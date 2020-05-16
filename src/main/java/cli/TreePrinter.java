@@ -1,8 +1,11 @@
 package cli;
 
+import com.google.common.base.Strings;
 import org.apache.log4j.Logger;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
+
+import java.util.Objects;
 
 public class TreePrinter extends Command {
     private final static Logger logger = Logger.getLogger(TreePrinter.class);
@@ -15,9 +18,24 @@ public class TreePrinter extends Command {
 
     @Override
     void execute() {
+        if (isTreeInvalid()) {
+            logger.warn(String.format("%s node couldn't be found.", znode));
+            return;
+        }
         StringBuilder stringBuilder = new StringBuilder();
-        printTree(znode, 0, stringBuilder);
+        printTree(znode, stringBuilder, 0);
         System.out.println(stringBuilder.toString());
+    }
+
+    private boolean isTreeInvalid() {
+        try {
+            if (Objects.isNull(zooKeeper.exists(znode, false))) {
+                return true;
+            }
+        } catch (KeeperException | InterruptedException e) {
+            logger.warn(String.format("Error occured. Reason: %s", e.getMessage()));
+        }
+        return false;
     }
 
     @Override
@@ -25,30 +43,26 @@ public class TreePrinter extends Command {
         return "'tree' - provides graphical representation of Z nodes tree";
     }
 
-    private void printTree(String node, int indent, StringBuilder sb) {
-        printNode(node, indent, sb);
+    private void printTree(String node, StringBuilder sb, int indent) {
         try {
-            zooKeeper.getChildren(node, false).forEach(child ->
-                    printTree(node.concat("/" + child), indent + 1, sb));
+            printNode(node, sb, indent);
+            for (String child : zooKeeper.getChildren(node, false)) {
+                printTree(node.concat("/" + child), sb, indent + 1);
+            }
         } catch (KeeperException | InterruptedException e) {
-            logger.error(e.getMessage());
+            logger.error("Error occured: " + e.getMessage());
         }
     }
 
-    private void printNode(String node, int indent, StringBuilder sb) {
-        String name = node.substring(node.lastIndexOf("/"));
-
-        sb.append(getIndentString(indent));
-        sb.append("├──");
-        sb.append(name);
-        sb.append("\n");
+    private void printNode(String node, StringBuilder stringBuilder, int indent) {
+        String nodeName = node.substring(node.lastIndexOf("/"));
+        stringBuilder.append(getIndent(indent))
+                .append("|--")
+                .append(nodeName)
+                .append("\n");
     }
 
-    private String getIndentString(int indent) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < indent; i++) {
-            sb.append("│  ");
-        }
-        return sb.toString();
+    private String getIndent(int indent) {
+        return Strings.repeat("|  ", indent);
     }
 }
