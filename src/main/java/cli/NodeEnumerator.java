@@ -15,7 +15,7 @@ public class NodeEnumerator extends Command {
 
     @Override
     void execute() {
-        if (TreeValidator.isTreeInvalid(zooKeeper, znode)) {
+        if (!TreeValidator.isTreeValid(zooKeeper, znode)) {
             logger.warn(String.format("%s node couldn't be found.", znode));
             return;
         }

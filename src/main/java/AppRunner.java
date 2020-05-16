@@ -1,6 +1,5 @@
 import cli.Terminal;
 import org.apache.log4j.Logger;
-import org.apache.zookeeper.Watcher;
 
 public class AppRunner {
     private final static Logger logger = Logger.getLogger(AppRunner.class);

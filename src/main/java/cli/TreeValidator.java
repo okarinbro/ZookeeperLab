@@ -9,14 +9,14 @@ import java.util.Objects;
 public class TreeValidator {
     private final static Logger logger = Logger.getLogger(TreeValidator.class);
 
-    static boolean isTreeInvalid(ZooKeeper zooKeeper, String znode) {
+    static boolean isTreeValid(ZooKeeper zooKeeper, String znode) {
         try {
             if (Objects.isNull(zooKeeper.exists(znode, false))) {
-                return true;
+                return false;
             }
         } catch (KeeperException | InterruptedException e) {
             logger.warn(String.format("Error occured. Reason: %s", e.getMessage()));
         }
-        return false;
+        return true;
     }
 }
