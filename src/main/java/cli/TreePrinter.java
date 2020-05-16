@@ -5,8 +5,6 @@ import org.apache.log4j.Logger;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooKeeper;
 
-import java.util.Objects;
-
 public class TreePrinter extends Command {
     private final static Logger logger = Logger.getLogger(TreePrinter.class);
     private final String znode;
@@ -18,24 +16,13 @@ public class TreePrinter extends Command {
 
     @Override
     void execute() {
-        if (isTreeInvalid()) {
+        if (TreeValidator.isTreeInvalid(zooKeeper, znode)) {
             logger.warn(String.format("%s node couldn't be found.", znode));
             return;
         }
         StringBuilder stringBuilder = new StringBuilder();
         printTree(znode, stringBuilder, 0);
         System.out.println(stringBuilder.toString());
-    }
-
-    private boolean isTreeInvalid() {
-        try {
-            if (Objects.isNull(zooKeeper.exists(znode, false))) {
-                return true;
-            }
-        } catch (KeeperException | InterruptedException e) {
-            logger.warn(String.format("Error occured. Reason: %s", e.getMessage()));
-        }
-        return false;
     }
 
     @Override

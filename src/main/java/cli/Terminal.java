@@ -24,6 +24,7 @@ public class Terminal implements Runnable {
     public void run() {
         Map<String, Command> commandMap = new ImmutableMap.Builder<String, Command>()
                 .put("tree", new TreePrinter(zooKeeper, znode))
+                .put("traverse", new NodeEnumerator(zooKeeper, znode))
                 .build();
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
